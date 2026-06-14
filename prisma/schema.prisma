@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+model Business {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  name        String
+  email       String   @unique
+  phoneNumber String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users            User[]
+  knowledgeBases   KnowledgeBase[]
+  conversations    Conversation[]
+  whatsappAccounts WhatsAppAccount[]
+  subscriptions    Subscription[]
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  AGENT
+}
+
+model User {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId String   @db.ObjectId
+
+  name       String
+  email      String   @unique
+
+  password   String
+
+  role       UserRole @default(OWNER)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+
+model WhatsAppAccount {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId         String   @db.ObjectId
+
+  phoneNumberId      String
+  whatsappNumber     String
+
+  accessToken        String
+
+  isActive           Boolean  @default(true)
+
+  createdAt          DateTime @default(now())
+
+  business           Business @relation(fields: [businessId], references: [id])
+}
+
+
+model KnowledgeBase {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId  String   @db.ObjectId
+
+  title       String
+
+  content     String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business    Business @relation(fields: [businessId], references: [id])
+}
+
+
+model Conversation {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId       String   @db.ObjectId
+
+  customerName     String?
+
+  customerPhone    String
+
+  lastMessageAt    DateTime
+
+  createdAt        DateTime @default(now())
+
+  business         Business @relation(fields: [businessId], references: [id])
+
+  messages         Message[]
+}
+
+
+model Message {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  conversationId   String   @db.ObjectId
+
+  role             MessageRole
+
+  content          String
+
+  createdAt        DateTime @default(now())
+
+  conversation     Conversation @relation(fields: [conversationId], references: [id])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+
+model Subscription {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId      String   @db.ObjectId
+
+  plan            PlanType
+
+  status          SubscriptionStatus
+
+  currentPeriodEnd DateTime
+
+  createdAt       DateTime @default(now())
+
+  business        Business @relation(fields: [businessId], references: [id])
+}
+
+enum PlanType {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
