@@ -13,6 +13,8 @@ model Business {
   email       String   @unique
   phoneNumber String
 
+  ownerId     String?  @db.ObjectId
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -45,6 +47,8 @@ model User {
   updatedAt  DateTime @updatedAt
 
   business   Business @relation(fields: [businessId], references: [id])
+
+    @@index([businessId])
 }
 
 
@@ -79,6 +83,8 @@ model KnowledgeBase {
   updatedAt   DateTime @updatedAt
 
   business    Business @relation(fields: [businessId], references: [id])
+
+   @@index([businessId])
 }
 
 
@@ -88,7 +94,6 @@ model Conversation {
   businessId       String   @db.ObjectId
 
   customerName     String?
-
   customerPhone    String
 
   lastMessageAt    DateTime
@@ -98,6 +103,9 @@ model Conversation {
   business         Business @relation(fields: [businessId], references: [id])
 
   messages         Message[]
+
+  @@index([businessId])
+  @@index([customerPhone])
 }
 
 
