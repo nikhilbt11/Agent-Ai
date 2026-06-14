@@ -1,14 +1,43 @@
-import { Request, Response } from 'express';
-import { AuthService } from './auth.service';
+import { Request, Response } from "express";
 
-const service = new AuthService();
+import { AuthService } from "./auth.service";
+import {
+  registerSchema,
+  loginSchema,
+} from "./auth.schema";
 
-export const register = async (req: Request, res: Response) => {
-  const result = await service.register(req.body);
-  res.json(result);
-};
+const authService = new AuthService();
 
-export const login = async (req: Request, res: Response) => {
-  const result = await service.login(req.body);
-  res.json(result);
-};
+export class AuthController {
+  async register(
+    req: Request,
+    res: Response
+  ) {
+    const payload =
+      registerSchema.parse(req.body);
+
+    const result =
+      await authService.register(payload);
+
+    return res.status(201).json({
+      success: true,
+      data: result,
+    });
+  }
+
+  async login(
+    req: Request,
+    res: Response
+  ) {
+    const payload =
+      loginSchema.parse(req.body);
+
+    const result =
+      await authService.login(payload);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  }
+}
