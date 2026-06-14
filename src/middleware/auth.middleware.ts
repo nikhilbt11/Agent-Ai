@@ -4,10 +4,9 @@ import { verifyToken } from "../utils/verify-token";
 export const authMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
-  const authHeader =
-    req.headers.authorization;
+  const authHeader = req.headers.authorization;
 
   if (!authHeader) {
     return res.status(401).json({
@@ -16,8 +15,7 @@ export const authMiddleware = (
     });
   }
 
-  const token =
-    authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({
@@ -27,10 +25,12 @@ export const authMiddleware = (
   }
 
   try {
-    const decoded =
-      verifyToken(token);
+    const decoded = verifyToken(token);
 
-    req.user = decoded;
+    req.user = {
+      userId: decoded.userId,
+      businessId: decoded.businessId,
+    };
 
     next();
   } catch {
