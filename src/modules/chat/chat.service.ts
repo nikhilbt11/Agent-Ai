@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma";
 import { GeminiService } from "../../services/gemini.service";
-import { ConversationService } from "./conversation.service";
+import { ConversationService } from "../conversation/conversation.service";
+
 
 const geminiService = new GeminiService();
 const conversationService = new ConversationService();

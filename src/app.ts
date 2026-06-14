@@ -7,6 +7,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import businessRoutes from "./modules/business/business.routes";
 import knowledgeBaseRoutes from "./modules/knowledge-base/knowledge-base.routes";
 import chatRoutes from "./modules/chat/chat.routes";
+import conversationRoutes from "./modules/conversation/conversation.routes";
 
 export const app = express();
 
@@ -24,3 +25,5 @@ app.use("/api/v1/business", businessRoutes);
 app.use("/api/v1/knowledge-base", knowledgeBaseRoutes);
 
 app.use("/api/v1/chat", chatRoutes);
+
+app.use("/api/v1/conversations", conversationRoutes);
