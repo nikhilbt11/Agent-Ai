@@ -22,17 +22,31 @@ export class WhatsAppController {
   }
 
   async receiveWebhook(req: Request, res: Response) {
-    console.log(JSON.stringify(req.body, null, 2));
+    console.log("Webhook Hit");
     try {
       const value = req.body?.entry?.[0]?.changes?.[0]?.value;
 
-      const message = value?.messages?.[0];
+      if (!value) {
+        return res.sendStatus(200);
+      }
+
+      const message = value.messages?.[0];
 
       if (!message) {
         return res.sendStatus(200);
       }
 
-      const phoneNumberId = value?.metadata?.phone_number_id;
+      const phoneNumberId = value.metadata?.phone_number_id;
+
+      const customerPhone = message.from;
+
+      const customerMessage = message.text?.body;
+
+      console.log({
+        phoneNumberId,
+        customerPhone,
+        customerMessage,
+      });
 
       const whatsappAccount = await prisma.whatsAppAccount.findFirst({
         where: {
@@ -42,12 +56,10 @@ export class WhatsAppController {
       });
 
       if (!whatsappAccount) {
+        console.log("Business:", whatsappAccount);
+
         return res.sendStatus(200);
       }
-
-      const customerPhone = message.from;
-
-      const customerMessage = message.text?.body;
 
       const answer = await chatService.ask(
         whatsappAccount.businessId,
@@ -57,8 +69,12 @@ export class WhatsAppController {
 
       await whatsappService.sendTextMessage(
         customerPhone,
-        answer ?? "Sorry, I couldn't find an answer to your question.", // TODO: add a fallback answer in the database for this case
+        answer ?? "I'm sorry, I couldn't find an answer to your question.", // TODO: Customize the default message as needed
       );
+
+      console.log("AI Answer:", answer);
+
+      return res.sendStatus(200);
     } catch (error) {
       console.error(error);
 
