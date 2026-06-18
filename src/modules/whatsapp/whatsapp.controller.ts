@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { ChatService } from "../chat/chat.service";
 import { WhatsAppService } from "./whatsapp.service";
 import { prisma } from "../../config/prisma";
+import { ConversationService } from "../conversation/conversation.service";
 
 const chatService = new ChatService();
 const whatsappService = new WhatsAppService();
+const conversationService = new ConversationService();
 
 export class WhatsAppController {
   verifyWebhook(req: Request, res: Response) {
@@ -48,7 +50,7 @@ export class WhatsAppController {
         customerMessage,
       });
 
-      const whatsappAccount = await prisma.whatsAppAccount.findFirst({
+      const whatsappAccount: any = await prisma.whatsAppAccount.findFirst({
         where: {
           phoneNumberId,
           isActive: true,
@@ -56,16 +58,32 @@ export class WhatsAppController {
       });
 
       if (!whatsappAccount) {
-        console.log("Business:", whatsappAccount);
+        console.log("Business:", whatsappAccount?.businessId);
 
         return res.sendStatus(200);
       }
+      const conversation = await conversationService.getOrCreateConversation(
+        whatsappAccount.businessId,
+        customerPhone,
+      );
+
+      await conversationService.saveUserMessage(
+        conversation.id,
+        customerMessage,
+      );
+
+      await conversationService.updateLastMessage(conversation.id);
 
       const answer = await chatService.ask(
         whatsappAccount.businessId,
         customerPhone,
         customerMessage,
       );
+
+      await conversationService.saveAssistantMessage(
+        conversation.id,
+        answer ?? "I'm sorry, I couldn't find an answer to your question.",
+      ); // TODO: Customize the default message as needed
 
       await whatsappService.sendTextMessage(
         customerPhone,

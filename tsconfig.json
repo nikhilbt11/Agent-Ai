@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    
+    "alwaysStrict": true,
+    "strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"

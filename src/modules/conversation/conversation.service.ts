@@ -56,14 +56,28 @@ export class ConversationService {
   }
 
   async getConversations(businessId: string) {
-    return prisma.conversation.findMany({
+    const conversations = await prisma.conversation.findMany({
       where: {
         businessId,
       },
       orderBy: {
         lastMessageAt: "desc",
       },
+      include: {
+        messages: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+        },
+      },
     });
+
+    return conversations.map((conversation) => ({
+      ...conversation,
+      lastMessage: conversation.messages[0]?.content ?? null,
+      messageCount: conversation.messages.length,
+    }));
   }
 
   async getMessages(conversationId: string) {
@@ -73,6 +87,17 @@ export class ConversationService {
       },
       orderBy: {
         createdAt: "asc",
+      },
+    });
+  }
+
+  async updateLastMessage(conversationId: string) {
+    return prisma.conversation.update({
+      where: {
+        id: conversationId,
+      },
+      data: {
+        lastMessageAt: new Date(),
       },
     });
   }

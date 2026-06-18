@@ -2,18 +2,13 @@
 import { Request, Response } from "express";
 import { ConversationService } from "./conversation.service";
 
-const conversationService =
-  new ConversationService();
+const conversationService = new ConversationService();
 
 export class ConversationController {
-  async getConversations(
-    req: Request,
-    res: Response
-  ) {
-    const data =
-      await conversationService.getConversations(
-        req.user!.businessId
-      );
+  async getConversations(req: Request, res: Response) {
+    const data = await conversationService.getConversations(
+      req.user!.businessId,
+    );
 
     return res.json({
       success: true,
@@ -21,14 +16,10 @@ export class ConversationController {
     });
   }
 
-  async getMessages(
-    req: Request,
-    res: Response
-  ) {
-    const data =
-      await conversationService.getMessages(
-        req.params.id as string
-      );
+  async getMessages(req: Request, res: Response) {
+    const { id } = req.params;
+
+    const data = await conversationService.getMessages(id as string);
 
     return res.json({
       success: true,
