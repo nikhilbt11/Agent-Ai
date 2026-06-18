@@ -9,6 +9,8 @@ import knowledgeBaseRoutes from "./modules/knowledge-base/knowledge-base.routes"
 import chatRoutes from "./modules/chat/chat.routes";
 import conversationRoutes from "./modules/conversation/conversation.routes";
 import whatsappRoutes from "./modules/whatsapp/whatsapp.routes";
+import leadRoutes from "./modules/lead/lead.routes";
+
 
 export const app = express();
 
@@ -30,3 +32,5 @@ app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/conversations", conversationRoutes);
 
 app.use("/api/v1/whatsapp", whatsappRoutes);
+
+app.use("/api/v1/leads", leadRoutes);

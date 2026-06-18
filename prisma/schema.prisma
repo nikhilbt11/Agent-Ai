@@ -24,6 +24,7 @@ model Business {
   conversations    Conversation[]
   whatsappAccounts WhatsAppAccount[]
   subscriptions    Subscription[]
+  leads Lead[]
 }
 
 enum UserRole {
@@ -164,4 +165,32 @@ enum SubscriptionStatus {
   ACTIVE
   CANCELLED
   EXPIRED
+}
+
+model Lead {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+
+  businessId    String   @db.ObjectId
+
+  name          String?
+
+  phone         String
+
+  status        LeadStatus @default(NEW)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  business       Business @relation(fields: [businessId], references: [id])
+
+  @@index([businessId])
+  @@index([phone])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
 }

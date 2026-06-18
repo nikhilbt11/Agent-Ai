@@ -3,10 +3,12 @@ import { ChatService } from "../chat/chat.service";
 import { WhatsAppService } from "./whatsapp.service";
 import { prisma } from "../../config/prisma";
 import { ConversationService } from "../conversation/conversation.service";
+import { LeadService } from "../lead/lead.service";
 
 const chatService = new ChatService();
 const whatsappService = new WhatsAppService();
 const conversationService = new ConversationService();
+const leadService = new LeadService();
 
 export class WhatsAppController {
   verifyWebhook(req: Request, res: Response) {
@@ -56,6 +58,16 @@ export class WhatsAppController {
           isActive: true,
         },
       });
+
+      const customerName = value.contacts?.[0]?.profile?.name;
+
+      const lead = await leadService.getOrCreateLead(
+        whatsappAccount.businessId,
+        customerPhone,
+        customerName,
+      );
+
+      console.log("Lead:", lead.id);
 
       if (!whatsappAccount) {
         console.log("Business:", whatsappAccount?.businessId);
